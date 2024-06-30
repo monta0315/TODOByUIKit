@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Task: Identifiable {
+class Task: Identifiable {
     var id: UUID
     private var isDone: Bool = false
     private let taskName: String
@@ -23,5 +23,9 @@ struct Task: Identifiable {
 
     func getIsDone() -> Bool {
         return isDone
+    }
+
+    func toggleIsDone() {
+        isDone.toggle()
     }
 }

@@ -8,7 +8,14 @@
 import Foundation
 
 class TaskListViewModel {
-    private var tasks: [Task] = []
+    private var tasks: [Task] = []  {
+        didSet {
+            NotificationCenter.default.post(name: tasksUpdatedNotification, object: nil)
+        }
+    }
+    
+    let tasksUpdatedNotification = Notification.Name("taskUpdateNotification")
+    
     var taskIds: [UUID] {
         return tasks.map(\.id)
     }
@@ -22,7 +29,7 @@ class TaskListViewModel {
     }
 
     init() {
-        initTaskRegister()
+//        initTaskRegister()
     }
 
     func numberOfTasks() -> Int {
@@ -55,5 +62,12 @@ class TaskListViewModel {
             let task = Task(taskName: name, id: UUID())
             tasks.append(task)
         }
+    }
+}
+
+extension TaskListViewModel: CreateTaskProtocol {
+    func createNewTask(taskName: String) {
+        let newTask = Task(taskName: taskName, id: UUID())
+        tasks.append(newTask)
     }
 }

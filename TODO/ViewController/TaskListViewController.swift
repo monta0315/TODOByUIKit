@@ -20,9 +20,18 @@ final class TaskListViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        initNavigationController()
         configureCollectionView()
         configureDataSource()
         applySnapShot()
+        applyNotificationCenter()
+    }
+    
+    // MARK: - init NavigationController setting
+    func initNavigationController() {
+        let currentDate = Utility.shared.getCurrentDateString()
+        self.title = currentDate
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(moveToCreateTaskViewController))
     }
 
     // MARK: Initial Data setting
@@ -74,7 +83,7 @@ final class TaskListViewController: UIViewController {
     private func registerHeader() {
         let headerRegistration = UICollectionView.SupplementaryRegistration<UICollectionViewListCell>(elementKind: UICollectionView.elementKindSectionHeader) { view, _, indexPath in
             var configuration = view.defaultContentConfiguration()
-            configuration.text = indexPath.section == 0 ? "TODO" : "Done"
+            configuration.text = indexPath.section == 0 ? "TODO" : "DONE"
             view.contentConfiguration = configuration
         }
 
@@ -114,6 +123,29 @@ extension TaskListViewController: UICollectionViewDelegate {
         }
         viewModel.toggleTaskStatus(id: targetTaskId)
         applySnapshotByReconfiguringItem(id: targetTaskId)
+        applySnapShot()
+    }
+}
+
+// MARK: - Actions
+extension TaskListViewController {
+    @objc func moveToCreateTaskViewController() {
+        let nextViewController = CreateTaskViewController()
+        nextViewController.delegate = viewModel
+        let navigationController = UINavigationController(rootViewController: nextViewController)
+        present(navigationController, animated: true, completion: nil)
+    }
+}
+
+// MARK: - add notification centers
+extension TaskListViewController {
+    func applyNotificationCenter() {
+        let center = NotificationCenter.default
+        center.addObserver(self, selector: #selector(reloadByObserver), name: viewModel.tasksUpdatedNotification, object: nil)
+    }
+    
+    @objc func reloadByObserver() {
+        // TODO: Prevent applying all items
         applySnapShot()
     }
 }
